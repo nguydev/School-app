@@ -10,6 +10,7 @@ const env = require('../src/config/env');
 const { matchesOtp, createOtp, hashOtp } = require('../src/modules/auth/otp');
 const { hashPassword, verifyPassword } = require('../src/modules/auth/password');
 const authenticate = require('../src/middlewares/authenticate');
+const requireAdmin = require('../src/middlewares/requireAdmin');
 const validate = require('../src/middlewares/validate');
 const {
   createAccessToken,
@@ -118,6 +119,17 @@ test('protected routes reject missing and invalid bearer tokens', async () => {
   assert.equal(missing.code, 'UNAUTHORIZED');
   assert.equal(invalid.statusCode, 401);
   assert.equal(invalid.code, 'INVALID_ACCESS_TOKEN');
+});
+
+test('administrator middleware allows only admin accounts', async () => {
+  const checkRole = (role) => new Promise((resolve) => {
+    requireAdmin({ user: { role } }, {}, resolve);
+  });
+
+  assert.equal(await checkRole('admin'), undefined);
+  const denied = await checkRole('user');
+  assert.equal(denied.statusCode, 403);
+  assert.equal(denied.code, 'ADMIN_ACCESS_REQUIRED');
 });
 
 test('validation errors do not retain submitted secret values', async () => {

@@ -41,6 +41,7 @@ function getDummyPasswordHash() {
 function publicUser(user) {
   return {
     id: user._id.toString(),
+    role: user.role || 'user',
     student_id: user.studentId,
     email: user.email,
     full_name: user.fullName,

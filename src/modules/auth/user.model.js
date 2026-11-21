@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema(
       immutable: true,
     },
     passwordHash: { type: String, required: true, select: false },
+    role: { type: String, enum: ['user', 'admin'], default: 'user', required: true },
     fullName: { type: String, required: true, trim: true, maxlength: 120 },
     schoolName: { type: String, required: true, trim: true, maxlength: 160 },
     gradeClass: { type: String, trim: true, maxlength: 80 },

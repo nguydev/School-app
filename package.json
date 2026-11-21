@@ -11,6 +11,7 @@
   "scripts": {
     "start": "node --use-system-ca src/server.js",
     "dev": "node --use-system-ca --watch src/server.js",
+    "admin:bootstrap": "node --use-system-ca scripts/bootstrap-admin.js",
     "test": "node --test"
   },
   "dependencies": {
