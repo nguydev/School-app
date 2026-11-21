@@ -11,6 +11,7 @@ const { matchesOtp, createOtp, hashOtp } = require('../src/modules/auth/otp');
 const { hashPassword, verifyPassword } = require('../src/modules/auth/password');
 const authenticate = require('../src/middlewares/authenticate');
 const requireAdmin = require('../src/middlewares/requireAdmin');
+const { apiRateLimiter } = require('../src/middlewares/rateLimiter');
 const validate = require('../src/middlewares/validate');
 const {
   createAccessToken,
@@ -130,6 +131,18 @@ test('administrator middleware allows only admin accounts', async () => {
   const denied = await checkRole('user');
   assert.equal(denied.statusCode, 403);
   assert.equal(denied.code, 'ADMIN_ACCESS_REQUIRED');
+});
+
+test('login uses its dedicated limiter without an extra global API limiter write', async () => {
+  const error = await new Promise((resolve) => {
+    apiRateLimiter(
+      { method: 'POST', path: '/auth/login' },
+      {},
+      resolve,
+    );
+  });
+
+  assert.equal(error, undefined);
 });
 
 test('validation errors do not retain submitted secret values', async () => {

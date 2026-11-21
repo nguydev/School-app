@@ -4,6 +4,7 @@ const emailService = require('./config/email');
 const env = require('./config/env');
 const logger = require('./config/logger');
 const { ensureAuthIndexes } = require('./modules/auth/auth.service');
+const ensureAcademicIndexes = require('./modules/academic/indexes');
 
 let server;
 let shuttingDown = false;
@@ -49,6 +50,7 @@ async function shutdown(signal, exitCode = 0) {
 async function start() {
   await connectDatabase();
   await ensureAuthIndexes();
+  await ensureAcademicIndexes();
   server = app.listen(env.port);
   await new Promise((resolve, reject) => {
     server.once('listening', resolve);

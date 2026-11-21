@@ -3,7 +3,7 @@ const ApiError = require('../utils/ApiError');
 function validate(schema) {
   return function validateRequest(req, _res, next) {
     const result = schema.safeParse({
-      body: req.body,
+      body: req.body ?? {},
       params: req.params,
       query: req.query,
     });
@@ -19,7 +19,13 @@ function validate(schema) {
       );
     }
 
-    req.validated = result.data;
+    req.validated = {
+      ...req.validated,
+      ...result.data,
+      body: { ...req.validated?.body, ...result.data.body },
+      params: { ...req.validated?.params, ...result.data.params },
+      query: { ...req.validated?.query, ...result.data.query },
+    };
     return next();
   };
 }

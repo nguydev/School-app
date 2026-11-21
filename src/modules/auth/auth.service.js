@@ -291,10 +291,12 @@ async function login(req, input) {
   }
 
   const now = new Date();
-  await User.updateOne({ _id: user._id }, { $set: { lastLoginAt: now } });
   user.lastLoginAt = now;
-  const tokens = await createSession(user, input, input.remember_me);
-  await writeAuthAudit(req, 'login_succeeded', true, user._id);
+  const [, tokens] = await Promise.all([
+    User.updateOne({ _id: user._id }, { $set: { lastLoginAt: now } }),
+    createSession(user, input, input.remember_me),
+    writeAuthAudit(req, 'login_succeeded', true, user._id),
+  ]);
 
   return { user: publicUser(user), tokens };
 }

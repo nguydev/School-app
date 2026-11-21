@@ -4,8 +4,12 @@ const env = require('../config/env');
 const AuthRateLimit = require('../modules/auth/auth-rate-limit.model');
 const ApiError = require('../utils/ApiError');
 
-function createRateLimiter({ name, windowMs, limit, keyForRequest }) {
+function createRateLimiter({ name, windowMs, limit, keyForRequest, skip }) {
   return async function rateLimitRequest(req, res, next) {
+    if (skip?.(req)) {
+      return next();
+    }
+
     try {
       const now = Date.now();
       const windowStartMs = Math.floor(now / windowMs) * windowMs;
@@ -64,6 +68,7 @@ const apiRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
   limit: 100,
   keyForRequest: clientIp,
+  skip: (req) => req.method === 'POST' && req.path === '/auth/login',
 });
 
 const loginLimiter = createRateLimiter({

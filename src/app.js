@@ -10,6 +10,8 @@ const { apiRateLimiter } = require('./middlewares/rateLimiter');
 const routes = require('./routes');
 const notFound = require('./middlewares/notFound.middleware');
 const errorHandler = require('./middlewares/error.middleware');
+const swaggerUi = require('swagger-ui-express');
+const openApiSpec = require('./docs/openapi');
 
 const app = express();
 
@@ -39,6 +41,8 @@ app.use(
     origin: env.corsOrigins.length > 0 ? env.corsOrigins : false,
   }),
 );
+app.get('/api-docs/openapi.json', (_req, res) => res.json(openApiSpec));
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(openApiSpec, { explorer: true }));
 app.use(compression());
 app.use('/api/v1', (_req, res, next) => {
   res.setHeader('Cache-Control', 'no-store');
